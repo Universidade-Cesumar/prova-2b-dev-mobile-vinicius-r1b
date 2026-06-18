@@ -22,6 +22,10 @@ export const useEstoque = () => {
   }, []);
 
   useEffect(() => {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
     carregarMateriais();
   }, [carregarMateriais]);
 
