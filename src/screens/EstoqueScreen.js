@@ -15,8 +15,16 @@ import MaterialCard from '../components/MaterialCard';
 import CadastroForm from '../components/CadastroForm';
 
 const EstoqueScreen = () => {
-  const { materiais, loading, loadingCadastro, erro, adicionarMaterial, recarregar } =
-    useEstoque();
+  const {
+    materiais,
+    loading,
+    loadingCadastro,
+    erro,
+    adicionarMaterial,
+    baixarEstoque,
+    removerMaterial,
+    recarregar,
+  } = useEstoque();
   const [busca, setBusca] = useState('');
 
   const materiaisFiltrados = useMemo(() => {
@@ -74,7 +82,13 @@ const EstoqueScreen = () => {
         testID="lista-materials"
         data={materiaisFiltrados}
         keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => <MaterialCard item={item} />}
+        renderItem={({ item }) => (
+          <MaterialCard
+            item={item}
+            onBaixar={baixarEstoque}
+            onExcluir={removerMaterial}
+          />
+        )}
         ListHeaderComponent={ListHeader}
         ListEmptyComponent={ListEmpty}
         contentContainerStyle={styles.listContent}
