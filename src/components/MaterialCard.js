@@ -1,28 +1,79 @@
 // src/components/MaterialCard.js
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 
-const MaterialCard = ({ item }) => {
+const MaterialCard = ({ item, onBaixar, onExcluir }) => {
   const quantidade = parseInt(item.quantidade, 10);
+  const [quantidadeRetirada, setQuantidadeRetirada] = useState('');
   const statusColor =
     quantidade === 0 ? '#e53935' : quantidade <= 5 ? '#f57c00' : '#2e7d32';
   const statusLabel =
     quantidade === 0 ? 'Zerado' : quantidade <= 5 ? 'Baixo' : 'OK';
 
+  const handleBaixar = async () => {
+    if (onBaixar) {
+      const sucesso = await onBaixar(item, quantidadeRetirada);
+      if (sucesso) {
+        setQuantidadeRetirada('');
+      }
+    }
+  };
+
+  const handleExcluir = async () => {
+    if (onExcluir) {
+      await onExcluir(item.id);
+    }
+  };
+
   return (
     <View style={styles.card}>
-      <View style={styles.info}>
-        <Text style={styles.nome}>{item.nome}</Text>
-        <Text style={styles.data}>
-          Cadastrado em:{' '}
-          {item.dataCadastro
-            ? new Date(item.dataCadastro).toLocaleDateString('pt-BR')
-            : '—'}
-        </Text>
+      <View style={styles.conteudoPrincipal}>
+        <View style={styles.info}>
+          <Text style={styles.nome}>{item.nome}</Text>
+          <Text style={styles.data}>
+            Cadastrado em:{' '}
+            {item.dataCadastro
+              ? new Date(item.dataCadastro).toLocaleDateString('pt-BR')
+              : '—'}
+          </Text>
+        </View>
+        <View style={styles.badge}>
+          <Text style={styles.quantidade}>{item.quantidade}</Text>
+          <Text style={[styles.status, { color: statusColor }]}>{statusLabel}</Text>
+        </View>
       </View>
-      <View style={styles.badge}>
-        <Text style={styles.quantidade}>{item.quantidade}</Text>
-        <Text style={[styles.status, { color: statusColor }]}>{statusLabel}</Text>
+
+      <View style={styles.acoes}>
+        <TextInput
+          testID="input-retirada"
+          style={styles.inputRetirada}
+          placeholder="Retirada"
+          placeholderTextColor="#9aa7a1"
+          value={quantidadeRetirada}
+          onChangeText={setQuantidadeRetirada}
+          keyboardType="numeric"
+        />
+
+        <View style={styles.botoes}>
+          <TouchableOpacity
+            testID="btn-baixar"
+            style={[styles.botao, styles.botaoBaixar]}
+            onPress={handleBaixar}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.textoBotao}>Baixar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            testID="btn-excluir"
+            style={[styles.botao, styles.botaoExcluir]}
+            onPress={handleExcluir}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.textoBotao}>Excluir</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -35,14 +86,16 @@ const styles = StyleSheet.create({
     padding: 16,
     marginHorizontal: 16,
     marginVertical: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
+  },
+  conteudoPrincipal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   info: {
     flex: 1,
@@ -71,6 +124,41 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     marginTop: 2,
+  },
+  acoes: {
+    marginTop: 14,
+  },
+  inputRetirada: {
+    borderWidth: 1,
+    borderColor: '#dbe7e0',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: '#1a1a2e',
+    backgroundColor: '#fafafa',
+    fontSize: 14,
+  },
+  botoes: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 10,
+  },
+  botao: {
+    flex: 1,
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  botaoBaixar: {
+    backgroundColor: '#1a6b3c',
+  },
+  botaoExcluir: {
+    backgroundColor: '#c62828',
+  },
+  textoBotao: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });
 
