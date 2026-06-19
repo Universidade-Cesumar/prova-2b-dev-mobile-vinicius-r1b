@@ -1,6 +1,12 @@
 // src/hooks/useEstoque.js
 import { useState, useEffect, useCallback } from 'react';
-import { getMateriais, cadastrarMaterial } from '../services/api';
+import {
+  getMateriais,
+  cadastrarMaterial,
+  atualizarMaterial,
+  excluirMaterial,
+} from '../services/api';
+import { validarRetirada } from '../utils/validarRetirada';
 
 export const useEstoque = () => {
   const [materiais, setMateriais] = useState([]);
@@ -49,12 +55,54 @@ export const useEstoque = () => {
     }
   };
 
+  const baixarEstoque = async (item, quantidade) => {
+    setErro(null);
+
+    if (!validarRetirada(item?.quantidade, quantidade)) {
+      setErro('Quantidade de retirada inválida.');
+      return false;
+    }
+
+    try {
+      const estoqueAtualizado = Number(item.quantidade) - Number(quantidade);
+      const materialAtualizado = await atualizarMaterial(item.id, {
+        ...item,
+        quantidade: estoqueAtualizado,
+      });
+
+      setMateriais((prev) =>
+        prev.map((material) =>
+          String(material.id) === String(item.id) ? materialAtualizado : material,
+        ),
+      );
+      return true;
+    } catch (e) {
+      setErro('Erro ao baixar estoque. Tente novamente.');
+      return false;
+    }
+  };
+
+  const removerMaterial = async (id) => {
+    setErro(null);
+
+    try {
+      await excluirMaterial(id);
+      setMateriais((prev) => prev.filter((material) => String(material.id) !== String(id)));
+      return true;
+    } catch (e) {
+      setErro('Erro ao excluir material. Tente novamente.');
+      return false;
+    }
+  };
+
   return {
     materiais,
     loading,
     loadingCadastro,
     erro,
     adicionarMaterial,
+    baixarEstoque,
+    removerMaterial,
     recarregar: carregarMateriais,
   };
 };
