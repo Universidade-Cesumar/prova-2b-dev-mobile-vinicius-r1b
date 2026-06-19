@@ -3,6 +3,18 @@
 // Exemplo: https://64abc123def456.mockapi.io/api/v1/materiais
 const BASE_URL = 'https://6a2b5787b687a7d5cbc524e1.mockapi.io/materiais';
 
+const processarResposta = async (response) => {
+  if (!response.ok) {
+    throw new Error('Erro na requisição');
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+};
+
 export const getMateriais = async () => {
   const response = await fetch(BASE_URL);
   if (!response.ok) throw new Error('Erro ao buscar materiais');
@@ -17,4 +29,22 @@ export const cadastrarMaterial = async (material) => {
   });
   if (!response.ok) throw new Error('Erro ao cadastrar material');
   return response.json();
+};
+
+export const atualizarMaterial = async (id, dados) => {
+  const response = await fetch(`${BASE_URL}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados),
+  });
+
+  return processarResposta(response);
+};
+
+export const excluirMaterial = async (id) => {
+  const response = await fetch(`${BASE_URL}/${id}`, {
+    method: 'DELETE',
+  });
+
+  return processarResposta(response);
 };
