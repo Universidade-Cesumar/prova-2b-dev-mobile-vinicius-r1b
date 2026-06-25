@@ -1,5 +1,6 @@
 // src/hooks/useEstoque.js
 import { useState, useEffect, useCallback } from 'react';
+import { Alert } from 'react-native';
 import {
   getMateriais,
   cadastrarMaterial,
@@ -7,6 +8,13 @@ import {
   excluirMaterial,
 } from '../services/api';
 import { validarRetirada } from '../utils/validarRetirada';
+
+const exibirAlerta = (titulo, mensagem) => {
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
+  Alert.alert(titulo, mensagem);
+};
 
 export const useEstoque = () => {
   const [materiais, setMateriais] = useState([]);
@@ -19,9 +27,11 @@ export const useEstoque = () => {
     setErro(null);
     try {
       const dados = await getMateriais();
-      setMateriais(dados);
+      setMateriais(dados || []);
     } catch (e) {
-      setErro('Não foi possível carregar os materiais. Verifique a conexão.');
+      const mensagem = e?.message || 'Não foi possível carregar os materiais. Verifique a conexão.';
+      setErro(mensagem);
+      exibirAlerta('Erro de conexão', mensagem);
     } finally {
       setLoading(false);
     }
@@ -48,7 +58,9 @@ export const useEstoque = () => {
       setMateriais((prev) => [materialCriado, ...prev]);
       return true;
     } catch (e) {
-      setErro('Erro ao cadastrar material. Tente novamente.');
+      const mensagem = e?.message || 'Erro ao cadastrar material. Tente novamente.';
+      setErro(mensagem);
+      exibirAlerta('Erro ao cadastrar', mensagem);
       return false;
     } finally {
       setLoadingCadastro(false);
@@ -59,7 +71,9 @@ export const useEstoque = () => {
     setErro(null);
 
     if (!validarRetirada(item?.quantidade, quantidade)) {
-      setErro('Quantidade de retirada inválida.');
+      const mensagem = 'Quantidade de retirada inválida.';
+      setErro(mensagem);
+      exibirAlerta('Retirada não permitida', mensagem);
       return false;
     }
 
@@ -77,7 +91,9 @@ export const useEstoque = () => {
       );
       return true;
     } catch (e) {
-      setErro('Erro ao baixar estoque. Tente novamente.');
+      const mensagem = e?.message || 'Erro ao baixar estoque. Tente novamente.';
+      setErro(mensagem);
+      exibirAlerta('Erro ao baixar estoque', mensagem);
       return false;
     }
   };
@@ -90,7 +106,9 @@ export const useEstoque = () => {
       setMateriais((prev) => prev.filter((material) => String(material.id) !== String(id)));
       return true;
     } catch (e) {
-      setErro('Erro ao excluir material. Tente novamente.');
+      const mensagem = e?.message || 'Erro ao excluir material. Tente novamente.';
+      setErro(mensagem);
+      exibirAlerta('Erro ao excluir', mensagem);
       return false;
     }
   };
