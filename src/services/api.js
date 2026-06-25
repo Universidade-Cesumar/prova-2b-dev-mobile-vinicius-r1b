@@ -16,35 +16,47 @@ const processarResposta = async (response) => {
 };
 
 export const getMateriais = async () => {
-  const response = await fetch(BASE_URL);
-  if (!response.ok) throw new Error('Erro ao buscar materiais');
-  return response.json();
+  try {
+    const response = await fetch(BASE_URL);
+    return await processarResposta(response);
+  } catch (e) {
+    throw new Error('Não foi possível conectar ao servidor. Verifique sua internet.');
+  }
 };
 
 export const cadastrarMaterial = async (material) => {
-  const response = await fetch(BASE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(material),
-  });
-  if (!response.ok) throw new Error('Erro ao cadastrar material');
-  return response.json();
+  try {
+    const response = await fetch(BASE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(material),
+    });
+    return await processarResposta(response);
+  } catch (e) {
+    throw new Error('Não foi possível cadastrar o material. Verifique sua internet.');
+  }
 };
 
 export const atualizarMaterial = async (id, dados) => {
-  const response = await fetch(`${BASE_URL}/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(dados),
-  });
-
-  return processarResposta(response);
+  try {
+    const response = await fetch(`${BASE_URL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados),
+    });
+    return await processarResposta(response);
+  } catch (e) {
+    throw new Error('Não foi possível atualizar o estoque. Verifique sua internet.');
+  }
 };
 
 export const excluirMaterial = async (id) => {
-  const response = await fetch(`${BASE_URL}/${id}`, {
-    method: 'DELETE',
-  });
-
-  return processarResposta(response);
+  try {
+    const response = await fetch(`${BASE_URL}/${id}`, {
+      method: 'DELETE',
+    });
+    return await processarResposta(response);
+  } catch (e) {
+    throw new Error('Não foi possível excluir o material. Verifique sua internet.');
+  }
 };
