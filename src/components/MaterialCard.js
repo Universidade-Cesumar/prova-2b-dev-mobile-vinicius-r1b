@@ -3,9 +3,12 @@ import React from 'react';
 import { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 
+const LIMITE_ESTOQUE_CRITICO = 10;
+
 const MaterialCard = ({ item, onBaixar, onExcluir }) => {
   const quantidade = parseInt(item.quantidade, 10);
   const [quantidadeRetirada, setQuantidadeRetirada] = useState('');
+  const estoqueCritico = quantidade < LIMITE_ESTOQUE_CRITICO;
   const statusColor =
     quantidade === 0 ? '#e53935' : quantidade <= 5 ? '#f57c00' : '#2e7d32';
   const statusLabel =
@@ -27,7 +30,10 @@ const MaterialCard = ({ item, onBaixar, onExcluir }) => {
   };
 
   return (
-    <View style={styles.card}>
+    <View
+      style={[styles.card, estoqueCritico && styles.cardCritico]}
+      accessibilityLabel={estoqueCritico ? 'estoque-critico' : undefined}
+    >
       <View style={styles.conteudoPrincipal}>
         <View style={styles.info}>
           <Text style={styles.nome}>{item.nome}</Text>
@@ -37,6 +43,9 @@ const MaterialCard = ({ item, onBaixar, onExcluir }) => {
               ? new Date(item.dataCadastro).toLocaleDateString('pt-BR')
               : '—'}
           </Text>
+          {estoqueCritico ? (
+            <Text style={styles.avisoCritico}>⚠ Estoque crítico</Text>
+          ) : null}
         </View>
         <View style={styles.badge}>
           <Text style={styles.quantidade}>{item.quantidade}</Text>
@@ -92,6 +101,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  cardCritico: {
+    backgroundColor: '#fff0f0',
+    borderWidth: 2,
+    borderColor: '#e53935',
+  },
   conteudoPrincipal: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -110,6 +124,12 @@ const styles = StyleSheet.create({
   data: {
     fontSize: 12,
     color: '#888',
+  },
+  avisoCritico: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#c62828',
+    marginTop: 4,
   },
   badge: {
     alignItems: 'center',
